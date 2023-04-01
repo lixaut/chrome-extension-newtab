@@ -34,7 +34,7 @@ function render() {
     time.getDay()
   ]
   renderDay(year, yearNodeList)
-  renderDay(month, monthNodeList)
+  renderDay(+month + 1, monthNodeList)
   renderDay(day, dayNodeList)
   renderWeek(week, weekNode)
 }
