@@ -1,26 +1,46 @@
+# 33
 
-## ![logo](./images/icon16.png) NewTaber
+This template should help get you started developing with Vue 3 in Vite.
 
-使用百度引擎的 chrome 浏览器 newtab 页面实在一言难尽，不仅丑，而且还不能进行自定义修改，虽然可以手动删除“最近访问标签”，但却并不能彻底删除
+## Recommended IDE Setup
 
-该插件主要是覆写了 newtab 页面，美化界面的同时新增了些功能，可以用来提示一些信息，用户也可以根据个人需求自定义修改页面内容
+[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
-默认界面预览：
+## Type Support for `.vue` Imports in TS
 
-![img](./images/NewTaber.png)
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
 
-### 🚀 Features
+If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
 
-* 书签栏功能
-* 时间显示
-* 日期和星期显示
+1. Disable the built-in TypeScript Extension
+    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
+    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
+2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
 
-### 🪛 Installation
+## Customize configuration
 
-1. 下载压缩包后解压
-2. 打开浏览器 设置 > 扩展程序 > 加载已解压的扩展程序
-3. 选择解压后的文件夹即可
+See [Vite Configuration Reference](https://vitejs.dev/config/).
 
-🔗 [扩展程序开发文档](https://developer.chrome.com/docs/extensions/)
+## Project Setup
 
-💡 注意：每次修改配置文件后都要点击扩展程序右下角的重新加载按钮进行重新加载，这样修改才会生效
+```sh
+npm install
+```
+
+### Compile and Hot-Reload for Development
+
+```sh
+npm run dev
+```
+
+### Type-Check, Compile and Minify for Production
+
+```sh
+npm run build
+```
+
+### Lint with [ESLint](https://eslint.org/)
+
+```sh
+npm run lint
+```
