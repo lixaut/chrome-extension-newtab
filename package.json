@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "dayjs": "^1.11.10",
     "pinia": "^2.1.7",
     "reset-css": "^5.0.2",
     "vue": "^3.4.15",

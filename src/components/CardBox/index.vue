@@ -16,9 +16,10 @@ defineOptions({
 
 <style lang="scss" scoped>
 .container {
-  background: rgba(255, 255, 255, 0.8);
+  background: $-github-bg-color;
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 10px;
+  padding: 10px 20px;
+  position: relative;
 }
 </style>
