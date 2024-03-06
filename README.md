@@ -1,46 +1,25 @@
-# 33
+## ![logo](./images/icon32.png) NewTaber（vue3 + ts）
 
-This template should help get you started developing with Vue 3 in Vite.
+使用百度引擎的 chrome 浏览器 newtab 页面实在一言难尽，不仅丑，而且还不能进行自定义修改，虽然可以手动删除“最近访问标签”，但却并不能彻底删除
 
-## Recommended IDE Setup
+该插件主要是覆写了 newtab 页面，美化界面的同时新增了些功能，可以用来提示一些信息，用户也可以根据个人需求自定义修改页面内容
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+界面效果预览：
 
-## Type Support for `.vue` Imports in TS
+![img](./images/NewTaber.png)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+全新样式！！！之前项目并没有使用框架，此次则基于 vue3 框架开发，大大提升开发效率，对于项目的模块扩展和后期维护也会更加容易，后续也会加入更多功能！
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+### 🚀 Features
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+- 全新的界面设计
+- 日期/时间/星期
+- 更多功能开发中...
 
-## Customize configuration
+### 🪛 Installation
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+1. 下载压缩包后解压
+2. 打开浏览器 设置 > 扩展程序 > 加载已解压的扩展程序
+3. 选择解压后的文件夹即可（每次修改配置文件(manifest.json)需要重新加载扩展程序）
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+👉 [扩展程序开发文档](https://developer.chrome.com/docs/extensions/)
