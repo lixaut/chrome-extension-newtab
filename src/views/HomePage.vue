@@ -62,19 +62,19 @@ defineOptions({
 .home-page {
   width: 100vw;
   height: 100vh;
-  background: $-theme-dark-color;
+  background: var(--bg-color);
   padding: 10px;
   .time {
     height: 4rem;
     line-height: 4rem;
     font-size: 4rem;
-    color: $-github-font-color-w;
+    color: var(--text-color-height);
     user-select: none;
     position: absolute;
     font-family: 'font-num';
     bottom: 22%;
     .hour {
-      color: $-github-font-color-b;
+      color: var(--text-color-primary);
     }
   }
   .date {
@@ -84,15 +84,15 @@ defineOptions({
     font-size: 1.6rem;
     bottom: 0;
     font-family: 'font-num';
-    color: $-github-font-color-g;
+    color: var(--text-color-low);
     .day {
-      color: $-github-font-color-b;
+      color: var(--text-color-primary);
     }
   }
   .week {
     font-family: 'font-num';
-    font-size: 1.4rem;
-    color: $-github-font-color-g;
+    font-size: 1.2rem;
+    color: var(--text-color-low);
   }
 }
 </style>

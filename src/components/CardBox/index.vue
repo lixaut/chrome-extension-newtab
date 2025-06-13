@@ -16,7 +16,7 @@ defineOptions({
 
 <style lang="scss" scoped>
 .container {
-  background: $-github-bg-color;
+  background: var(--card-bg-color);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 10px 20px;

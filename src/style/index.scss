@@ -1,0 +1,18 @@
+@import './fonts.scss';
+@import './_reset.scss';
+
+:root {
+  --text-color-primary: rgba(83, 155, 245, 1);
+
+  --bg-color: rgba(251, 248, 250, 1);
+  --card-bg-color: rgba(46, 51, 58, 0.1);
+  --text-color-low: rgba(173, 186, 199, 1);
+  --text-color-height: rgba(68, 76, 86, 1);
+
+  @media (prefers-color-scheme: dark) {
+    --bg-color: rgba(57, 59, 66, 1);
+    --card-bg-color: rgba(46, 51, 58, 0.8);
+    --text-color-low: rgba(68, 76, 86, 1);
+    --text-color-height: rgba(173, 186, 199, 1);
+  }
+}
