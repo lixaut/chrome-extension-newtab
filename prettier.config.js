@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   printWidth: 100, // 每行代码长度（默认80）
   tabWidth: 2, // 每个tab相当于多少个空格（默认2）ab进行缩进（默认false）
   useTabs: false, // 是否使用tab

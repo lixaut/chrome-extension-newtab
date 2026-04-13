@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { defineOptions, ref, onUnmounted, onMounted } from 'vue';
-import CardBox from '@/components/CardBox/index.vue';
+import { ref, onUnmounted, onMounted } from 'vue';
+import { CardBox } from '@/components/index';
 import dayjs from 'dayjs';
 
 let timeList = ref<Array<string>>([]);

@@ -1,5 +1,12 @@
 {
   "files": [],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"] // 关键配置
+    }
+    // ... 其他配置保持不变
+  },
   "references": [
     {
       "path": "./tsconfig.node.json"
