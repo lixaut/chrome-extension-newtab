@@ -2,17 +2,33 @@
 @import './_reset.scss';
 
 :root {
-  --text-color-primary: rgba(83, 155, 245, 1);
+  --color-primary: #7fb2e5;
+  --color-secondary: #37474f;
+  --color-tertiary: #90a4ae;
+  --card-border-radius: 0.3rem;
 
-  --bg-color: rgba(251, 248, 250, 1);
-  --card-bg-color: rgba(46, 51, 58, 0.1);
-  --text-color-low: rgba(173, 186, 199, 1);
-  --text-color-height: rgba(68, 76, 86, 1);
+  --color-primary-t0: rgba(123, 178, 229, 0);
+  --color-primary-t1: rgba(123, 178, 229, 0.1);
+  --color-primary-t2: rgba(123, 178, 229, 0.2);
+  --color-primary-t3: rgba(123, 178, 229, 0.3);
+  --color-primary-t4: rgba(123, 178, 229, 0.4);
+  --color-primary-t5: rgba(123, 178, 229, 0.5);
+  --color-primary-t6: rgba(123, 178, 229, 0.6);
+  --color-primary-t7: rgba(123, 178, 229, 0.7);
+  --color-primary-t8: rgba(123, 178, 229, 0.8);
+  --color-primary-t9: rgba(123, 178, 229, 0.9);
+
+  --color-bg: #d3dae7;
+  --color-fg: #121417;
+  --color-card-bg: #ebeef5;
+  --color-text-headline: #2d333b;
+  --color-text-body: #595f69;
 
   @media (prefers-color-scheme: dark) {
-    --bg-color: rgba(57, 59, 66, 1);
-    --card-bg-color: rgba(46, 51, 58, 0.8);
-    --text-color-low: rgba(68, 76, 86, 1);
-    --text-color-height: rgba(173, 186, 199, 1);
+    --color-bg: #0c0e11;
+    --color-fg: #f9f9fd;
+    --color-card-bg: #161a1f;
+    --color-text-headline: #e0e6f1;
+    --color-text-body: #a5abb6;
   }
 }
