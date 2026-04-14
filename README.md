@@ -1,25 +1,58 @@
-## ![logo](./images/icon32.png) NewTaber（vue3 + ts）
+# Chrome New Tab Page Extension
 
-使用百度引擎的 chrome 浏览器 newtab 页面实在一言难尽，不仅丑，而且还不能进行自定义修改，虽然可以手动删除“最近访问标签”，但却并不能彻底删除
+现代化 Chrome 新标签页扩展，提供节日展示和系统主题自适应功能。
 
-该插件主要是覆写了 newtab 页面，美化界面的同时新增了些功能，可以用来提示一些信息，用户也可以根据个人需求自定义修改页面内容
+## 功能特性
 
-界面效果预览：
+- ✨ **节日动态展示**：根据当前日期自动显示节假日信息
+- 🌓 **智能主题切换**：自动跟随系统设置的白天/夜间模式
+- 🎨 **全新首页设计**：基于 Vue3 重构的现代化界面
+- ⚡ **轻量高效**：优化性能与资源占用
 
-![img](./images/NewTaber.png)
+## 安装指南
 
-全新样式！！！之前项目并没有使用框架，此次则基于 vue3 框架开发，大大提升开发效率，对于项目的模块扩展和后期维护也会更加容易，后续也会加入更多功能！
+1. 克隆项目：
+   ```bash
+   git clone https://github.com/your-username/chrome-extension-newtab.git
+   cd chrome-extension-newtab
+   ```
+2. 安装依赖：
+   ```bash
+   npm install
+   ```
+3. 构建生产版本：
+   ```bash
+   npm run build
+   ```
+4. 在 Chrome 中加载扩展：
+   - 打开 `chrome://extensions`
+   - 启用开发者模式
+   - 点击"加载已解压的扩展程序"
+   - 选择 `dist` 目录
 
-### 🚀 Features
+## 开发环境
 
-- 全新的界面设计
-- 日期/时间/星期
-- 更多功能开发中...
+```bash
+# 启动开发服务器
+npm run dev
 
-### 🪛 Installation
+# 打包生产版本
+npm run build
+```
 
-1. 下载压缩包后解压
-2. 打开浏览器 设置 > 扩展程序 > 加载已解压的扩展程序
-3. 选择解压后的文件夹即可（每次修改配置文件(manifest.json)需要重新加载扩展程序）
+## 项目结构
 
-👉 [扩展程序开发文档](https://developer.chrome.com/docs/extensions/)
+```
+├── public/        # 静态资源
+├── src/           # 源代码
+│   ├── assets/    # 静态资源
+│   ├── components # Vue 组件
+│   ├── pages/     # 页面组件
+│   └── main.js    # 入口文件
+├── dist/          # 构建输出目录
+└── package.json   # 项目配置
+```
+
+> 本项目基于 Vue3 构建，使用现代前端技术栈开发。\
+> 当前版本：v3.0.0 | 最后更新：2026-04-14
+

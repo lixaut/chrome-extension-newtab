@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NewTaber",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "override the newtab",
   "author": "wlkp9108@gmail.com",
   "icons": {
