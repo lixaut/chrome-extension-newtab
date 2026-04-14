@@ -8,34 +8,44 @@
         <span class="minute">{{ times[1] }}</span>
       </div>
       <div class="date">{{ times[2] }}</div>
-      <div class="week">{{ times[3] }}</div>
-      <HolidayCard style="margin-top: 0.5rem;" />
+      <div class="lunar">{{ '农历' + times[3] }}</div>
+      <div class="week">{{ times[4] }}</div>
+      <HolidayCard style="margin-top: 0.6rem;" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onBeforeMount, onUnmounted } from 'vue';
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import 'dayjs/locale/en';
 import HolidayCard from './HolidayCard.vue';
+import { PluginLunar } from "dayjs-plugin-lunar";
 
-const times = ref<Array<string>>(['00', '00', '--月--日', '-- / --']);
+dayjs.extend(PluginLunar);
+
+const times = ref<Array<string>>([]);
 const timer = ref<number>(0);
 
 const initTimes = () => {
   timer.value = setInterval(() => {
-    times.value = [
-      dayjs().format('HH'),
-      dayjs().format('mm'),
-      dayjs().format('M月DD日'),
-      dayjs().locale('en').format('dddd').toUpperCase() + ' / ' + dayjs().locale('zh-cn').format('dddd')
-    ];
+    setTime()
   }, 1000);
 };
 
-onMounted(() => {
+const setTime = () => {
+  times.value = [
+    dayjs().format('HH'),
+    dayjs().format('mm'),
+    dayjs().format('M月DD日'),
+    dayjs().format('LMLD'),
+    dayjs().locale('en').format('dddd').toUpperCase() + ' / ' + dayjs().locale('zh-cn').format('dddd')
+  ];
+};
+
+onBeforeMount(() => {
+  setTime()
   initTimes();
 });
 
@@ -66,14 +76,13 @@ defineOptions({
       font-weight: 500;
       letter-spacing: 0.04rem;
       color: var(--color-text-body);
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
     }
 
     .time {
       font-family: 'Manrope';
-      font-size: 2rem;
-      font-weight: 900;
-      letter-spacing: 0.02rem;
+      font-size: 1.8rem;
+      font-weight: 800;
 
       .hour {
         color: var(--color-primary);
@@ -86,10 +95,19 @@ defineOptions({
 
     .date {
       font-family: 'Manrope';
-      font-size: 0.2rem;
+      font-size: 0.28rem;
+      font-weight: 500;
+      color: var(--color-text-headline);
+      margin-top: 0.2rem;
+    }
+
+    .lunar {
+      font-family: 'Inter';
+      font-size: 0.14rem;
       font-weight: 500;
       color: var(--color-text-body);
-      margin-top: 0.26rem;
+      letter-spacing: 0.01rem;
+      margin-top: 0.1rem;
     }
 
     .week {
