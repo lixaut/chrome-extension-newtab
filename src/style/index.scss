@@ -2,33 +2,43 @@
 @import './_reset.scss';
 
 :root {
-  --color-primary: #7fb2e5;
-  --color-secondary: #37474f;
-  --color-tertiary: #90a4ae;
-  --card-border-radius: 0.3rem;
+  --card-border-radius: 20px;
 
-  --color-primary-t0: rgba(123, 178, 229, 0);
-  --color-primary-t1: rgba(123, 178, 229, 0.1);
-  --color-primary-t2: rgba(123, 178, 229, 0.2);
-  --color-primary-t3: rgba(123, 178, 229, 0.3);
-  --color-primary-t4: rgba(123, 178, 229, 0.4);
-  --color-primary-t5: rgba(123, 178, 229, 0.5);
-  --color-primary-t6: rgba(123, 178, 229, 0.6);
-  --color-primary-t7: rgba(123, 178, 229, 0.7);
-  --color-primary-t8: rgba(123, 178, 229, 0.8);
-  --color-primary-t9: rgba(123, 178, 229, 0.9);
+  --color-primary: rgba(42, 98, 144, 1);
+  --color-base: rgba(211, 218, 231, 1);
+  --color-base-secondary: rgba(235, 238, 245, 1);
+  --color-inverted: rgba(12, 14, 17, 1);
+  --color-text-headline: rgba(45, 51, 59, 1);
+  --color-text-body: rgba(89, 95, 105, 1);
 
-  --color-bg: #d3dae7;
-  --color-fg: #121417;
-  --color-card-bg: #ebeef5;
-  --color-text-headline: #2d333b;
-  --color-text-body: #595f69;
+  --color-primary-t0: rgba(42, 98, 144, 0);
+  --color-primary-t1: rgba(42, 98, 144, 0.1);
+  --color-primary-t2: rgba(42, 98, 144, 0.2);
+  --color-primary-t3: rgba(42, 98, 144, 0.3);
+  --color-primary-t4: rgba(42, 98, 144, 0.4);
+  --color-primary-t5: rgba(42, 98, 144, 0.5);
+  --color-primary-t6: rgba(42, 98, 144, 0.6);
+  --color-primary-t7: rgba(42, 98, 144, 0.7);
+  --color-primary-t8: rgba(42, 98, 144, 0.8);
+  --color-primary-t9: rgba(42, 98, 144, 0.9);
 
   @media (prefers-color-scheme: dark) {
-    --color-bg: #0c0e11;
-    --color-fg: #f9f9fd;
-    --color-card-bg: #161a1f;
-    --color-text-headline: #e0e6f1;
-    --color-text-body: #a5abb6;
+    --color-primary: rgba(152, 203, 255, 1);
+    --color-base: rgba(12, 14, 17, 1);
+    --color-base-secondary: rgba(22, 26, 31, 1);
+    --color-inverted: rgba(249, 249, 253, 1);
+    --color-text-headline: rgba(224, 230, 241, 1);
+    --color-text-body: rgba(165, 171, 182, 1);
+
+    --color-primary-t0: rgba(152, 203, 255, 0);
+    --color-primary-t1: rgba(152, 203, 255, 0.1);
+    --color-primary-t2: rgba(152, 203, 255, 0.2);
+    --color-primary-t3: rgba(152, 203, 255, 0.3);
+    --color-primary-t4: rgba(152, 203, 255, 0.4);
+    --color-primary-t5: rgba(152, 203, 255, 0.5);
+    --color-primary-t6: rgba(152, 203, 255, 0.6);
+    --color-primary-t7: rgba(152, 203, 255, 0.7);
+    --color-primary-t8: rgba(152, 203, 255, 0.8);
+    --color-primary-t9: rgba(152, 203, 255, 0.9);
   }
 }

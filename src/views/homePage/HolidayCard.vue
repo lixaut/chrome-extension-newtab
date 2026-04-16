@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" v-fade-loading="loading">
     <div class="label">HOLIDAY / 节日</div>
     <div class="tag">{{ dayjs(holiday.date).locale('zh-cn').format('MM月DD日') }}</div>
     <div class="festival">
@@ -23,6 +23,9 @@
 import { ref, onBeforeMount } from 'vue';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import useCacheByDate from '@/hooks/useCacheByDate';
+
+const { getCache, setCache } = useCacheByDate(['holiday_next', 'holiday_days', 'holiday_tips']);
 
 interface DayData {
   week: number;
@@ -54,6 +57,7 @@ const weekMap: MapType = {
   7: '日'
 }
 
+const loading = ref(true);
 const holidayTip = ref('');
 const days = ref<Array<DayData>>([]);
 const holiday = ref<{ date: string; name: string; rest: number }>({
@@ -81,7 +85,16 @@ const getNextHoliday = async () => {
   // 获取下一个节假日
   const options = { method: 'GET', url: 'http://timor.tech/api/holiday/next?type=Y&week=N' };
   try {
-    const { data: res } = await axios.request(options);
+    // 根据缓存调取接口数据
+    let res: any = null;
+    if (getCache('holiday_next')) {
+      res = getCache('holiday_next');
+    } else {
+      const { data } = await axios.request(options);
+      res = data
+      setCache('holiday_next', res);
+    }
+
     if (res.code === 0) {
       holiday.value.date = res.holiday.date;
       holiday.value.name = res.holiday.name;
@@ -103,16 +116,25 @@ const getHolidayDays = async (date: string) => {
     url: `http://timor.tech/api/holiday/year/${dayjs(date).format('YYYY-MM')}?type=Y&week=N`
   };
   try {
-    const { data: res } = await axios.request<HolidayApi>(options);
+    // 根据缓存调取接口数据
+    let res: HolidayApi;
+    if (getCache('holiday_days')) {
+      res = getCache('holiday_days');
+    } else {
+      const { data } = await axios.request<HolidayApi>(options);
+      res = data
+      setCache('holiday_days', res);
+    }
+
     if (res.code === 0) {
       for (let [key, value] of Object.entries(res.type)) {
-        console.log(key, value);
         days.value.push({
           week: value.week as number,
           date: key,
           type: dayjs().format('YYYY-MM-DD') == key ? 10 : value.type as number
         })
       }
+      loading.value = false;
     }
   } catch (error) {
     console.error(error);
@@ -128,7 +150,16 @@ const getHolidayTip = async () => {
     url: `http://timor.tech/api/holiday/tts`
   };
   try {
-    const { data: res } = await axios.request<HolidayApi>(options);
+    // 根据缓存调取接口数据
+    let res: HolidayApi;
+    if (getCache('holiday_tips')) {
+      res = getCache('holiday_tips');
+    } else {
+      const { data } = await axios.request<HolidayApi>(options);
+      res = data
+      setCache('holiday_tips', res);
+    }
+
     if (res.code === 0) {
       holidayTip.value = res.tts || '';
     }
@@ -147,7 +178,7 @@ onBeforeMount(() => {
 .card {
   width: 6rem;
   min-height: 3.2rem;
-  background-color: var(--color-card-bg);
+  background-color: var(--color-base-secondary);
   border-radius: var(--card-border-radius);
   padding: 0.3rem;
   position: relative;
@@ -190,7 +221,7 @@ onBeforeMount(() => {
       height: 0.5rem;
       line-height: 0.5rem;
       font-weight: 800;
-      color: var(--color-fg);
+      color: var(--color-inverted);
     }
 
     .long {

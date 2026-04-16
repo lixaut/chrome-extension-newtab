@@ -62,7 +62,7 @@ defineOptions({
 .container {
   width: 100vw;
   height: 100vh;
-  background-color: var(--color-bg);
+  background-color: var(--color-base);
   position: relative;
 
   .content {
@@ -89,7 +89,7 @@ defineOptions({
       }
 
       .minute {
-        color: var(--color-fg);
+        color: var(--color-inverted);
       }
     }
 
