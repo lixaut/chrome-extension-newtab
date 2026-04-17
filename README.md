@@ -1,11 +1,16 @@
-<div style="display: flex; align-items: center;justify-content: center;margin: 30px 0;">
-<img src="./images/icon32.png" alt="logo" width="48" height="48">
-<span style="font-size: 24px;margin-left: 16px;">NewTaber（Vue3 + TypeScript）</span>
+<div align="center">
+  <img align="center" src="images/icon32.png" alt="logo" >
+  &nbsp;
+  <strong>NewTaber（Vue3 + TypeScript）</strong>
 </div>
 
+<br>
+
 <div style="display: flex; align-items: center;justify-content: center;margin: 30px 0;">
-<img src="./images/preview.png" alt="logo">
+  <img src="images/preview.png" alt="logo">
 </div>
+
+<br>
 
 # Chrome New Tab Page Extension
 
