@@ -1,3 +1,12 @@
+<div style="display: flex; align-items: center;justify-content: center;margin: 30px 0;">
+<img src="./images/icon32.png" alt="logo" width="48" height="48">
+<span style="font-size: 24px;margin-left: 16px;">NewTaber（Vue3 + TypeScript）</span>
+</div>
+
+<div style="display: flex; align-items: center;justify-content: center;margin: 30px 0;">
+<img src="./images/preview.png" alt="logo">
+</div>
+
 # Chrome New Tab Page Extension
 
 现代化 Chrome 新标签页扩展，提供节日展示和系统主题自适应功能。
