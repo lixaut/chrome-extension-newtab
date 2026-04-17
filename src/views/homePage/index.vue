@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="mask"></div>
-    <div class="content">
+    <div class="content" v-fade-loading="loading">
       <div class="time-label">TERMINAL TIME / 当前时间</div>
       <div class="time">
         <span class="hour">{{ times[0] }}</span>
@@ -27,6 +27,7 @@ dayjs.extend(PluginLunar);
 
 const times = ref<Array<string>>([]);
 const timer = ref<number>(0);
+const loading = ref<boolean>(true);
 
 const initTimes = () => {
   timer.value = setInterval(() => {
@@ -47,6 +48,9 @@ const setTime = () => {
 onBeforeMount(() => {
   setTime()
   initTimes();
+  setTimeout(() => {
+    loading.value = false;
+  }, 0);
 });
 
 onUnmounted(() => {

@@ -134,7 +134,9 @@ const getHolidayDays = async (date: string) => {
           type: dayjs().format('YYYY-MM-DD') == key ? 10 : value.type as number
         })
       }
-      loading.value = false;
+      setTimeout(() => {
+        loading.value = false;
+      }, 0);
     }
   } catch (error) {
     console.error(error);
