@@ -10,5 +10,11 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
-  }
+  },
+  overrides: [
+    {
+      files: ['scripts/**/*.{mjs,js,cjs}', 'server/**/*.{mjs,js,cjs}'],
+      env: { node: true }
+    }
+  ]
 }

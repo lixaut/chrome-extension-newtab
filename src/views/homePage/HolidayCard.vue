@@ -1,10 +1,12 @@
 <template>
   <div class="card" v-fade-loading="loading">
     <div class="label">HOLIDAY / 节日</div>
-    <div class="tag">{{ dayjs(holiday.date).locale('zh-cn').format('MM月DD日') }}</div>
+    <div class="tag">
+      {{ (holiday.date ? dayjs(holiday.date) : dayjs()).locale('zh-cn').format('MM月DD日') }}
+    </div>
     <div class="festival">
-      <span class="name">{{ holiday.name }}</span>
-      <span class="long">距离假期还有 {{ holiday.rest }} 天</span>
+      <span class="name">{{ holiday.name || '暂无节假日' }}</span>
+      <span class="long" v-if="holiday.rest > 0">距离假期还有 {{ holiday.rest }} 天</span>
     </div>
     <div class="info">{{ holidayTip }}</div>
     <div class="holidays">
@@ -21,11 +23,9 @@
 
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue';
-import axios from 'axios';
 import dayjs from 'dayjs';
-import useCacheByDate from '@/hooks/useCacheByDate';
-
-const { getCache, setCache } = useCacheByDate(['holiday_next', 'holiday_days', 'holiday_tips']);
+import type { HolidayDataset } from '@/utils/holidayData';
+import { currentData, fetchRemote, isStale, isNewer, readCache, writeCache } from '@/utils/holidayData';
 
 interface DayData {
   week: number;
@@ -34,12 +34,6 @@ interface DayData {
 }
 interface MapType {
   [key: number]: string;
-}
-interface HolidayApi {
-  code: number;
-  holiday: Record<string, { type: number, week: number }>;
-  type: Record<string, { week: number, type: number }>;
-  tts?: string;
 }
 
 const typeMap: MapType = {
@@ -65,6 +59,8 @@ const holiday = ref<{ date: string; name: string; rest: number }>({
   name: '',
   rest: 0
 });
+/** 当前生效的节假日数据（服务器缓存或内置种子，二者结构同构） */
+const source = ref<HolidayDataset>(currentData());
 const dayClassName = (item: DayData) => {
   if (item.date == dayjs().format('YYYY-MM-DD')) {
     return 'active';
@@ -79,100 +75,81 @@ const dayClassName = (item: DayData) => {
 }
 
 /**
- * 获取下一个节假日信息
+ * 查询下一个法定休假日（严格晚于今天）
  */
-const getNextHoliday = async () => {
-  // 获取下一个节假日
-  const options = { method: 'GET', url: 'http://timor.tech/api/holiday/next?type=Y&week=N' };
-  try {
-    // 根据缓存调取接口数据
-    let res: any = null;
-    if (getCache('holiday_next')) {
-      res = getCache('holiday_next');
-    } else {
-      const { data } = await axios.request(options);
-      res = data
-      setCache('holiday_next', res);
-    }
+const findNextHoliday = () => {
+  const table = source.value.holidays;
+  const today = dayjs().format('YYYY-MM-DD');
+  const date = Object.keys(table)
+    .sort()
+    .find((key) => table[key].type === 2 && key > today);
 
-    if (res.code === 0) {
-      holiday.value.date = res.holiday.date;
-      holiday.value.name = res.holiday.name;
-      holiday.value.rest = res.holiday.rest;
-      getHolidayDays(res.holiday.date);
-    }
-  } catch (error) {
-    console.error(error);
-  }
+  if (!date) return null;
+  return { date, name: table[date].name, rest: dayjs(date).diff(today, 'day') };
 };
 
 /**
- * 获取节假日信息
+ * 获取节假日信息（该月所有法定日）
  * @param date 日期
  */
-const getHolidayDays = async (date: string) => {
-  const options = {
-    method: 'GET',
-    url: `http://timor.tech/api/holiday/year/${dayjs(date).format('YYYY-MM')}?type=Y&week=N`
-  };
-  try {
-    // 根据缓存调取接口数据
-    let res: HolidayApi;
-    if (getCache('holiday_days')) {
-      res = getCache('holiday_days');
-    } else {
-      const { data } = await axios.request<HolidayApi>(options);
-      res = data
-      setCache('holiday_days', res);
-    }
+const getHolidayDays = (date: string) => {
+  const month = dayjs(date).format('YYYY-MM');
+  const monthStart = dayjs(`${month}-01`);
+  const today = dayjs().format('YYYY-MM-DD');
+  const table = source.value.holidays;
+  const list: DayData[] = [];
 
-    if (res.code === 0) {
-      for (let [key, value] of Object.entries(res.type)) {
-        days.value.push({
-          week: value.week as number,
-          date: key,
-          type: dayjs().format('YYYY-MM-DD') == key ? 10 : value.type as number
-        })
-      }
-      setTimeout(() => {
-        loading.value = false;
-      }, 0);
-    }
-  } catch (error) {
-    console.error(error);
+  for (let i = 0; i < monthStart.daysInMonth(); i++) {
+    const current = monthStart.add(i, 'day');
+    const key = current.format('YYYY-MM-DD');
+    const item = table[key];
+    if (!item) continue;
+
+    list.push({
+      week: item.week,
+      date: key,
+      type: today === key ? 10 : item.type
+    });
   }
+
+  days.value = list;
 };
 
-/**
- * 获取节假日提示
- */
-const getHolidayTip = async () => {
-  const options = {
-    method: 'GET',
-    url: `http://timor.tech/api/holiday/tts`
-  };
-  try {
-    // 根据缓存调取接口数据
-    let res: HolidayApi;
-    if (getCache('holiday_tips')) {
-      res = getCache('holiday_tips');
-    } else {
-      const { data } = await axios.request<HolidayApi>(options);
-      res = data
-      setCache('holiday_tips', res);
-    }
+/** 依据 source 重新计算全部展示数据，幂等可重入 */
+const applyRender = () => {
+  const next = findNextHoliday();
 
-    if (res.code === 0) {
-      holidayTip.value = res.tts || '';
-    }
-  } catch (error) {
-    console.error(error);
+  if (!next) {
+    holiday.value = { date: '', name: '', rest: 0 };
+    holidayTip.value = '';
+    days.value = [];
+    return;
   }
-}
+
+  holiday.value = next;
+  holidayTip.value = `还有${next.rest}天就是${next.name}了。`;
+  getHolidayDays(next.date);
+};
+
+/** 后台刷新：失败保持原有数据不变，仅在数据更新时重渲染 */
+const refreshRemote = async () => {
+  const next = await fetchRemote();
+  if (!next || !isNewer(next, source.value)) return;
+
+  writeCache(next);
+  const changed = next.version !== source.value.version;
+  source.value = next;
+  if (changed) applyRender();
+};
 
 onBeforeMount(() => {
-  getNextHoliday();
-  getHolidayTip();
+  applyRender();
+
+  setTimeout(() => {
+    loading.value = false;
+  }, 0);
+
+  if (!readCache() || isStale()) void refreshRemote();
 });
 </script>
 

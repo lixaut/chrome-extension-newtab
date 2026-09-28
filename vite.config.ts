@@ -28,5 +28,9 @@ export default defineConfig({
         additionalData: '@import "./src/style/variables.scss";'
       }
     }
+  },
+  build: {
+    // 产物直接输出为可加载的扩展目录（manifest/images/background 来自 public/）
+    outDir: 'NewTaber_v3.0.0'
   }
 })
