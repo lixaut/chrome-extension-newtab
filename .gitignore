@@ -14,8 +14,8 @@ dist-ssr
 coverage
 *.local
 
-# 构建产物不入库，本地执行 npm run build 生成
-NewTaber_v3.0.0/
+# 构建产物不入库，本地执行 npm run build 生成，目录名随 package.json 版本变化
+NewTaber_v*/
 
 # 本地配置（含服务器域名等敏感信息，勿提交）
 .env

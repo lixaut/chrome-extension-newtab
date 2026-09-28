@@ -117,7 +117,7 @@ npm run update:seed
    - 打开 `chrome://extensions`
    - 启用开发者模式
    - 点击"加载已解压的扩展程序"
-   - 选择 `NewTaber_v3.0.0` 目录
+   - 选择 `NewTaber_v<版本号>` 目录（如 `NewTaber_v3.1.0`）
 
 ## 开发环境
 
@@ -125,12 +125,27 @@ npm run update:seed
 # 启动开发服务器
 npm run dev
 
-# 打包生产版本（产物直接输出到 NewTaber_v3.0.0/）
+# 打包生产版本（产物输出到 NewTaber_v<版本号>/）
 npm run build
 
 # 更新内置节假日种子
 npm run update:seed
 ```
+
+### 版本号
+
+版本号唯一来源是 `package.json`，改完代码后升一档再构建：
+
+```bash
+npm run bump -- patch   # 修 bug / 小改动   3.1.0 → 3.1.1
+npm run bump -- minor   # 新增功能         3.1.0 → 3.2.0
+npm run bump -- major   # 不兼容改动       3.1.0 → 4.0.0
+```
+
+`bump` 会同步 `package.json` / `package-lock.json` / `public/manifest.json` 三处版本号，随后 `npm run build` 会：
+
+- 生成 `NewTaber_v<新版本号>/` 目录，并把版本号写进产物 `manifest.json`
+- 自动删除上一个版本的产物目录（只匹配 `NewTaber_vX.Y.Z` 形式）
 
 ## 项目结构
 
@@ -138,13 +153,14 @@ npm run update:seed
 ├── public/               # 静态资源（manifest.json / background.js / images）
 ├── scripts/
 │   ├── build-seed.mjs    # 生成内置种子数据
-│   └── apply-config.mjs  # 构建后按 .env 写入 manifest host_permissions
+│   ├── apply-config.mjs  # 构建后写入 manifest 版本号 + host_permissions，清理旧产物
+│   └── sync-manifest.mjs # bump 时同步 public/manifest.json 版本号
 ├── server/               # 服务器侧数据生成脚本
 ├── src/
 │   ├── data/holidays.json    # 内置种子数据
 │   ├── utils/holidayData.ts  # 三级数据源 + 缓存 + 拉取
 │   └── views/                # 页面组件
-├── NewTaber_v3.0.0/      # 构建输出，可直接加载的扩展目录（不入库，需自行构建）
+├── NewTaber_v<版本号>/   # 构建输出，可直接加载的扩展目录（不入库，需自行构建）
 └── package.json
 ```
 
