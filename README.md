@@ -62,7 +62,7 @@ VITE_HOLIDAY_API=https://你的域名/holiday/holiday.json
 
 - `.env` 已被 gitignore，不会提交
 - 留空 = 不请求远程，仅使用内置种子
-- 构建时自动校验并写入 `manifest.json` 的 `host_permissions`（必须 HTTPS，非法配置直接构建失败）
+- 构建时自动校验并写入 `manifest.json` 的 `host_permissions`（支持 http/https，非法 URL 直接构建失败）
 
 ### 部署数据服务（服务器侧）
 

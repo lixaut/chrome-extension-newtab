@@ -4,7 +4,8 @@
  *
  * - 服务器地址来自 .env，不写死在代码里
  * - 未配置时移除 host_permissions，扩展仅使用内置种子数据
- * - 配置非法（非 HTTPS / 非法 URL）时直接失败，避免产出静默失效的包
+ * - 配置非法（非 http/https 或非法 URL）时直接失败，避免产出静默失效的包
+ * - 支持 http，但会给出明文传输告警
  *
  * 用法: 构建后自动执行（见 package.json build-only）
  */
@@ -64,13 +65,18 @@ const main = async () => {
   } catch {
     throw new Error(`VITE_HOLIDAY_API 不是合法 URL: ${api}`);
   }
-  if (!origin.startsWith('https://')) {
-    throw new Error(`VITE_HOLIDAY_API 必须是 HTTPS: ${api}`);
+  if (!/^https?:\/\//.test(origin)) {
+    throw new Error(`VITE_HOLIDAY_API 仅支持 http/https: ${api}`);
   }
 
   manifest.host_permissions = [`${origin}/*`];
   await writeFile(MANIFEST_FILE, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
   console.log(`✓ manifest: host_permissions = ${origin}/*`);
+  if (origin.startsWith('http://')) {
+    console.warn(
+      `⚠ 使用 HTTP：明文传输，数据可被中间人篡改且扩展无签名校验，建议改用 HTTPS`
+    );
+  }
 };
 
 main().catch((err) => {
