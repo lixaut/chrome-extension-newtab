@@ -11,6 +11,11 @@
 #   /opt/holiday/update.sh /var/www/holiday/holiday.json
 #   curl -i https://<域名>/holiday/holiday.json
 #
+# Webhook 通知:
+#   数据更新时向飞书群机器人推送摘要，地址配置在 /opt/holiday/.env:
+#     FEISHU_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx
+#   参考 .env.example；不配置则不通知
+#
 # crontab（每天一次；国务院公告在 11 月初，公告后最迟次日生效）:
 #   15 7 * * * /opt/holiday/update.sh /var/www/holiday/holiday.json >> /var/log/holiday.log 2>&1
 #
@@ -23,5 +28,13 @@ set -euo pipefail
 
 OUT="${1:-/var/www/holiday/holiday.json}"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# 可选配置（如 FEISHU_WEBHOOK），同目录 .env 不存在则跳过
+if [ -f "$DIR/.env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  . "$DIR/.env"
+  set +a
+fi
 
 node "$DIR/build-holiday.mjs" "$OUT"

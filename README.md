@@ -77,7 +77,14 @@ VITE_HOLIDAY_API=https://你的域名/holiday/holiday.json
    15 7 * * * /opt/holiday/update.sh /var/www/holiday/holiday.json >> /var/log/holiday.log 2>&1
    ```
    国务院一年只发布一次（11 月初），上游偶有年中补丁，故每日一次足够；脚本幂等，内容没变不会写文件，失败次日自动重试。想更省可改为每周一：`15 7 * * 1`。
-4. nginx 开启 CORS 与缓存：
+4. （可选）配置运行通知：**每次运行**（数据更新 / 无变化 / 失败）都向飞书群机器人推送一条结果摘要
+   ```bash
+   cp server/.env.example /opt/holiday/.env
+   # 编辑 /opt/holiday/.env
+   FEISHU_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx
+   ```
+   Webhook 地址获取：飞书群 → 设置 → 群机器人 → 添加自定义机器人。不配置则不通知；通知失败只记日志，不影响数据更新。通知为富文本格式，含时间与耗时；如需指定时区可在 `.env` 中加 `TZ_NOTIFY=Asia/Shanghai`（默认跟随服务器 TZ）。
+5. nginx 开启 CORS 与缓存：
    ```nginx
    location /holiday/ {
        root /var/www;
