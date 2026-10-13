@@ -17,6 +17,9 @@ coverage
 # 构建产物不入库，本地执行 npm run build 生成，目录名随 package.json 版本变化
 NewTaber_v*/
 
+# 本地测试产物统一放这里，不入库（如跑 server/build-holiday.mjs 的输出）
+/tmp/
+
 # 本地配置（含服务器域名等敏感信息，勿提交）
 .env
 .env.local

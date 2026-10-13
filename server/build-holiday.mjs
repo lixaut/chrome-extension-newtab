@@ -7,7 +7,7 @@
  *
  * 用法:
  *   node build-holiday.mjs [输出路径]
- *   默认输出 ./holiday.json
+ *   默认输出 ./tmp/holiday.json（本地测试产物目录，已 gitignore；服务器由 update.sh 显式传路径）
  *
  * 行为保证:
  *   - 任一环节失败 → 非 0 退出且不改动已有文件（扩展继续用缓存）
@@ -42,7 +42,7 @@ const FETCH_RETRIES = 5;
 const NOTIFY_RETRIES = 3;
 const NOTIFY_RETRY_DELAYS = [3000, 8000];
 
-const OUT_FILE = path.resolve(process.argv[2] ?? path.join(process.cwd(), 'holiday.json'));
+const OUT_FILE = path.resolve(process.argv[2] ?? path.join(process.cwd(), 'tmp', 'holiday.json'));
 
 /** 飞书机器人 webhook（可选，未配置则不通知） */
 const FEISHU_WEBHOOK = process.env.FEISHU_WEBHOOK?.trim() || '';
