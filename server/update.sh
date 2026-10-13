@@ -16,8 +16,8 @@
 #     FEISHU_WEBHOOK=https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx
 #   参考 .env.example；不配置则不通知
 #
-# crontab（每天一次；国务院公告在 11 月初，公告后最迟次日生效）:
-#   15 7 * * * /opt/holiday/update.sh /var/www/holiday/holiday.json >> /var/log/holiday.log 2>&1
+# crontab（每天一次）:
+#   9 5 * * * /opt/holiday/update.sh /var/www/holiday/holiday.json >> /var/log/holiday.log 2>&1
 #
 # 说明:
 #   - 上游一年只更新一次（偶有年中补丁，如临时调整上班日），故无需高频

@@ -44,7 +44,7 @@
   → 扩展开新标签时后台刷新（缓存周期 24 小时）
 ```
 
-全程不需要重新打包、刷新或重装扩展，公告后最坏约 2 天生效（服务器次日 07:15 拉取 + 扩展 24 小时缓存）。
+全程不需要重新打包、刷新或重装扩展，公告后最坏约 2 天生效（服务器次日 05:09 拉取 + 扩展 24 小时缓存）。
 
 - 结构：`HolidayDataset { version, generated_at, years, holidays }`，`holidays[date] = { type, week, name }`，`type` 2=休 3=班
 - 拉取失败（断网 / 超时 / 服务器不可用）→ **保持原有数据不变**，静默降级
@@ -74,10 +74,10 @@ VITE_HOLIDAY_API=https://你的域名/holiday/holiday.json
    ```
 3. 配置 crontab（每天一次）：
    ```cron
-   15 7 * * * /opt/holiday/update.sh /var/www/holiday/holiday.json >> /var/log/holiday.log 2>&1
+   9 5 * * * /opt/holiday/update.sh /var/www/holiday/holiday.json >> /var/log/holiday.log 2>&1
    ```
-   国务院一年只发布一次（11 月初），上游偶有年中补丁，故每日一次足够；脚本幂等，内容没变不会写文件，失败次日自动重试。想更省可改为每周一：`15 7 * * 1`。
-4. （可选）配置运行通知：**每次运行**（数据更新 / 无变化 / 失败）都向飞书群机器人推送一条结果摘要
+   国务院一年只发布一次（11 月初），上游偶有年中补丁，故每日一次足够；脚本幂等，内容没变不会写文件，失败次日自动重试。想更省可改为每周一：`9 5 * * 1`。
+4. （可选）配置运行通知：**数据更新或失败**时向飞书群机器人推送一条结果摘要（内容无变化只记日志，不通知）
    ```bash
    cp server/.env.example /opt/holiday/.env
    # 编辑 /opt/holiday/.env
