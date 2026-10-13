@@ -13,6 +13,7 @@
  *   - 任一环节失败 → 非 0 退出且不改动已有文件（扩展继续用缓存）
  *   - 先写临时文件再 rename，扩展不会读到半截数据
  *   - 内容无变化则不重写，mtime 稳定
+ *   - 网络抖动自动重试：上游最多 5 次（指数退避，轮换备源），通知最多 3 次（限流不重试）
  *
  * 注意: 转换逻辑需与扩展侧 scripts/build-seed.mjs 保持一致
  *
@@ -23,9 +24,23 @@
 import { mkdir, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const CDN_URL = 'https://cdn.jsdelivr.net/npm/chinese-days@latest/dist/chinese-days.json';
+/** 上游地址（轮换尝试）: jsDelivr 的三个接入点，数据完全相同 */
+const CDN_MIRRORS = [
+  'https://cdn.jsdelivr.net/npm/chinese-days@latest/dist/chinese-days.json',
+  'https://fastly.jsdelivr.net/npm/chinese-days@latest/dist/chinese-days.json',
+  'https://gcore.jsdelivr.net/npm/chinese-days@latest/dist/chinese-days.json'
+];
 /** 与扩展内置种子相同的年份跨度：当前年前后各 N 年 */
 const YEARS_SPAN = 1;
+
+/** 网络容错参数（毫秒）：单次请求超时、退避基数 */
+const TIMEOUT_MS = 15_000;
+const NOTIFY_TIMEOUT_MS = 10_000;
+const RETRY_BASE_DELAY = 1000;
+/** 上游总尝试次数 / 通知总尝试次数（通知重试间隔固定在 NOTIFY_RETRY_DELAYS） */
+const FETCH_RETRIES = 5;
+const NOTIFY_RETRIES = 3;
+const NOTIFY_RETRY_DELAYS = [3000, 8000];
 
 const OUT_FILE = path.resolve(process.argv[2] ?? path.join(process.cwd(), 'holiday.json'));
 
@@ -59,6 +74,29 @@ const stamp = (date = new Date()) =>
 const log = (...args) => console.log(`[${stamp()}]`, ...args);
 const logErr = (...args) => console.error(`[${stamp()}]`, ...args);
 
+/**
+ * 展开错误链为可读文本。undici 的网络失败只报 "fetch failed"，
+ * 真实原因（超时/DNS/拒连等）挂在 err.cause 上，需要逐层取出。
+ * 例: fetch failed <- Connect Timeout Error (UND_ERR_CONNECT_TIMEOUT)
+ */
+const describeErr = (err) => {
+  const parts = [err?.message ?? String(err)];
+  const seen = new Set();
+  let cause = err?.cause;
+  while (cause && !seen.has(cause)) {
+    seen.add(cause);
+    const detail = [cause.code, cause.message].filter(Boolean).join(' ').trim();
+    parts.push(detail || String(cause));
+    cause = cause.cause;
+  }
+  return parts.join(' <- ');
+};
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** 指数退避 + 随机抖动: 1s、2s、4s、8s …（抖动 0~1s，避免多机同拍重试） */
+const backoffDelay = (retryIndex) => RETRY_BASE_DELAY * 2 ** retryIndex + Math.floor(Math.random() * RETRY_BASE_DELAY);
+
 /** 运行耗时，如 3.2s */
 const elapsed = () => `${((Date.now() - START_AT) / 1000).toFixed(1)}s`;
 
@@ -87,20 +125,36 @@ const fmtItems = (items, max = MAX_DIFF_ITEMS) =>
 const t = (text) => ({ tag: 'text', text });
 // post 不支持 <br>，换行靠分段: content 的每个子数组即一段
 
-/** 推送飞书富文本（post）消息；失败只记日志，不影响主流程 */
+/**
+ * 推送飞书富文本（post）消息；失败只记日志，不影响主流程
+ * 网络错误/HTTP 5xx 重试（3s、8s）；API 报错（含 11232 限流）属确定性失败，不重试
+ */
 const notifyFeishu = async (post) => {
   if (!FEISHU_WEBHOOK) return;
-  try {
-    const res = await fetch(FEISHU_WEBHOOK, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ msg_type: 'post', content: { post: { zh_cn: post } } })
-    });
-    const body = await res.json().catch(() => ({}));
-    if (!res.ok || body.code) throw new Error(`HTTP ${res.status} code=${body.code ?? ''} ${body.msg ?? ''}`.trim());
-    log('✓ 飞书通知已发送');
-  } catch (err) {
-    logErr(`✗ 飞书通知发送失败: ${err.message}`);
+  let last = '';
+  for (let attempt = 1; attempt <= NOTIFY_RETRIES; attempt++) {
+    if (attempt > 1) await sleep(NOTIFY_RETRY_DELAYS[attempt - 2]);
+    try {
+      const res = await fetch(FEISHU_WEBHOOK, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ msg_type: 'post', content: { post: { zh_cn: post } } }),
+        signal: AbortSignal.timeout(NOTIFY_TIMEOUT_MS)
+      });
+      const body = await res.json().catch(() => ({}));
+      if (body.code) throw Object.assign(new Error(`HTTP ${res.status} code=${body.code} ${body.msg ?? ''}`.trim()), { retryable: false });
+      if (!res.ok) throw Object.assign(new Error(`HTTP ${res.status}`), { retryable: true });
+      log('✓ 飞书通知已发送');
+      return;
+    } catch (err) {
+      last = describeErr(err);
+      const retryable = err.retryable ?? true; // fetch 网络错误可重试
+      if (!retryable || attempt === NOTIFY_RETRIES) {
+        logErr(`✗ 飞书通知发送失败${attempt > 1 ? `（已试 ${attempt} 次）` : ''}: ${last}`);
+        return;
+      }
+      log(`⚠ 飞书通知第 ${attempt}/${NOTIFY_RETRIES} 次失败: ${last}；${NOTIFY_RETRY_DELAYS[attempt - 1] / 1000}s 后重试`);
+    }
   }
 };
 
@@ -133,7 +187,7 @@ const failureMessage = (err) => ({
   title: `❌ 节假日数据更新失败`,
   content: [
     [t(metaLine())],
-    [t(`<font color='red'>原因</font>: ${err?.message ?? String(err)}`)],
+    [t(`<font color='red'>原因</font>: ${describeErr(err)}`)],
     [t('已有数据保持不变，将于下次运行自动重试')]
   ]
 });
@@ -169,10 +223,52 @@ const fingerprint = (holidays) => {
   return (hash >>> 0).toString(16).padStart(8, '0');
 };
 
+/** 单次 GET JSON；错误标注 retryable 供上层决定是否重试 */
+const fetchJsonOnce = async (url) => {
+  let response;
+  try {
+    response = await fetch(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(TIMEOUT_MS) });
+  } catch (err) {
+    throw Object.assign(new Error(`请求失败: ${describeErr(err)}`), { retryable: true });
+  }
+  if (!response.ok) {
+    // 4xx 除 429 外都是确定性失败（如 404），重试无意义
+    throw Object.assign(new Error(`HTTP ${response.status}`), { retryable: response.status >= 500 || response.status === 429 });
+  }
+  try {
+    return await response.json();
+  } catch (err) {
+    throw Object.assign(new Error(`JSON 解析失败: ${describeErr(err)}`), { retryable: true });
+  }
+};
+
+/**
+ * GET JSON，带超时与重试：
+ *   - 单次超时 TIMEOUT_MS；最多 FETCH_RETRIES 次，指数退避 1s/2s/4s/8s + 抖动
+ *   - 轮换 CDN_MIRRORS：主源抖动时自动切 fastly / gcore 接入点
+ *   - 仅网络错误 / 5xx / 429 / 解析失败重试；其余直接失败
+ * 失败抛出带 URL 与底层错误链的 Error
+ */
+const fetchJson = async (urls) => {
+  let last = '';
+  for (let attempt = 1; attempt <= FETCH_RETRIES; attempt++) {
+    const url = urls[(attempt - 1) % urls.length];
+    try {
+      return await fetchJsonOnce(url);
+    } catch (err) {
+      last = `${url} -> ${err.message}`;
+      if (!err.retryable) throw new Error(`拉取上游失败 ${last}`);
+      if (attempt === FETCH_RETRIES) break;
+      const delay = backoffDelay(attempt - 1);
+      log(`⚠ 尝试 ${attempt}/${FETCH_RETRIES} 失败: ${last}；${(delay / 1000).toFixed(1)}s 后重试 -> ${urls[attempt % urls.length]}`);
+      await sleep(delay);
+    }
+  }
+  throw new Error(`拉取上游失败（已试 ${FETCH_RETRIES} 次）: ${last}`);
+};
+
 const main = async () => {
-  const response = await fetch(CDN_URL, { headers: { accept: 'application/json' } });
-  if (!response.ok) throw new Error(`拉取上游失败: ${response.status}`);
-  const src = await response.json();
+  const src = await fetchJson(CDN_MIRRORS);
 
   const year = new Date().getFullYear();
   const years = [year - YEARS_SPAN, year, year + YEARS_SPAN];
@@ -217,7 +313,7 @@ const main = async () => {
 };
 
 main().catch(async (err) => {
-  logErr(`✗ ${err.message}`);
+  logErr(`✗ ${describeErr(err)}`);
   await notifyFeishu(failureMessage(err));
   process.exit(1);
 });
